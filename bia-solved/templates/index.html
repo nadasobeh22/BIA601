@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transport Optimization</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(to left, #e2dbdb, #aaabf5);
+            font-family: 'Arial', sans-serif;
+            background-image: url('static/background.webp');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: cover;
+        }
+
+        .title {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .title i {
+            font-size: 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        form::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        form::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        form::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #4CAF50, #45a049);
+            border-radius: 10px;
+            border: 3px solid #f1f1f1;
+        }
+
+        form::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, #45a049, #4CAF50);
+        }
+        @media (max-width: 600px) {
+            form {
+                padding: 20px;
+                width: 85%;
+            }
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        label {
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 95%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <form action="/result" method="post">
+        <img src="static/icon-tsp.webp" width="150px" style="margin: auto; border-radius: 50%;" alt="">
+        <h1>Traveling Salesman Problem</h1>
+        <h2>Knapsack Problem</h2>
+        <div class="form-group">
+            <div class="title">
+                <label for="capacity"><i class="fas fa-truck"></i> Truck Capacity:</label>
+            </div>
+            <input type="number" name="capacity" id="capacity" required>
+        </div>
+        <div class="form-group">
+            <div class="title">
+                <label for="num_items"><i class="fas fa-box"></i> Number of Items:</label>
+            </div>
+            <input type="number" name="num_items" id="num_items" required>
+        </div>
+        <div id="items" class="form-group">
+            <!-- Dynamic items input will be added here -->
+        </div>
+        <h2>Traveling Salesman Problem</h2>
+        <div class="form-group">
+            <label for="num_addresses"><i class="fas fa-map-marker-alt"></i> Number of Addresses:</label>
+            <input type="number" name="num_addresses" id="num_addresses" required>
+        </div>
+        <div id="addresses" class="form-group">
+            <!-- Dynamic addresses input will be added here -->
+        </div>
+        <div id="distances" class="form-group">
+            <!-- Dynamic distance input will be added here -->
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        document.getElementById('num_items').addEventListener('input', function () {
+            const numItems = this.value;
+            const itemsDiv = document.getElementById('items');
+            itemsDiv.innerHTML = '';
+            for (let i = 0; i < numItems; i++) {
+                itemsDiv.innerHTML += `
+                    <div class="form-group">
+                        <label for="weight${i}"><i class="fas fa-weight-hanging"></i> Weight ${i + 1}:</label>
+                        <input type="number" name="weight${i}" id="weight${i}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="value${i}"><i class="fas fa-dollar-sign"></i> Value ${i + 1}:</label>
+                        <input type="number" name="value${i}" id="value${i}" required>
+                    </div>`;
+            }
+        });
+
+        document.getElementById('num_addresses').addEventListener('input', function () {
+            const numAddresses = this.value;
+            const addressesDiv = document.getElementById('addresses');
+            const distancesDiv = document.getElementById('distances');
+            addressesDiv.innerHTML = '';
+            distancesDiv.innerHTML = '';
+            for (let i = 0; i < numAddresses; i++) {
+                addressesDiv.innerHTML += `
+                    <div class="form-group">
+                        <label for="address${i}"><i class="fas fa-map-marker-alt"></i> Address ${i + 1}:</label>
+                        <input type="text" name="address${i}" id="address${i}" required>
+                    </div>`;
+            }
+            for (let i = 0; i < numAddresses; i++) {
+                for (let j = i + 1; j < numAddresses; j++) {
+                    distancesDiv.innerHTML += `
+                        <div class="form-group">
+                            <label for="distance${i}_${j}"><i class="fas fa-road"></i> Distance between Address ${i + 1} and Address ${j + 1}:</label>
+                            <input type="number" name="distance${i}_${j}" id="distance${i}_${j}" required>
+                        </div>`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
